@@ -1,8 +1,18 @@
 import React from 'react';
+import { Container } from 'react-bootstrap';
+import Converter from './components/Converter';
+import CurrencyRatesTable from './components/CurrencyRatesTable';
+import Header from './components/Header';
 
 function App() {
   return (
-    <h1>Hello World!</h1>
+    <>
+      <Header />
+      <Container fluid='sm'>
+        <CurrencyRatesTable />
+        <Converter />
+      </Container>
+    </>
   );
 }
 
