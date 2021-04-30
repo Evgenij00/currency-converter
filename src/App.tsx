@@ -5,6 +5,13 @@ import CurrencyRatesTable from './components/CurrencyRatesTable';
 import Header from './components/Header';
 
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
+import CurrenciesService, { ICurrenciesService } from './services/currencies-service';
+
+const service: ICurrenciesService = new CurrenciesService()
+
+service.getRates()
+service.getRatesByBase('USD')
+service.getConvertPrice('EUR', 'USD', 1)
 
 function App() {
   return (
