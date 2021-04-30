@@ -1,17 +1,10 @@
 import React from 'react';
 import { Container } from 'react-bootstrap';
 import Converter from './components/Converter';
-import CurrencyRatesTable from './components/CurrencyRatesTable';
+import CurrencyRatesTable from './components/CurrencyRates';
 import Header from './components/Header';
 
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
-import CurrenciesService, { ICurrenciesService } from './services/currencies-service';
-
-const service: ICurrenciesService = new CurrenciesService()
-
-service.getRates()
-service.getRatesByBase('USD')
-service.getConvertPrice('EUR', 'USD', 1)
 
 function App() {
   return (

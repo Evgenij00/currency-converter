@@ -71,7 +71,7 @@ export default class CurrenciesService implements ICurrenciesService {
   getRates = async (): Promise<TRates> => {
     const data = await this.getResource('https://www.cbr-xml-daily.ru/latest.js')
 
-    console.log(data.rates)
+    // console.log(data.rates)
 
     return data.rates
   }
@@ -93,7 +93,7 @@ export default class CurrenciesService implements ICurrenciesService {
       return item
     })
 
-    console.log(updateRatesArray)
+    // console.log(updateRatesArray)
 
     return updateRatesArray
   }
@@ -109,7 +109,7 @@ export default class CurrenciesService implements ICurrenciesService {
       newRates[name] = price
     }
 
-    console.log(newRates[toName] * quantity)
+    // console.log(newRates[toName] * quantity)
 
     return newRates[toName] * quantity
   }
