@@ -1,21 +1,19 @@
 import React, { Component } from "react";
 
 import { connect } from 'react-redux';
-import { TEmptyStringError, TInvalidStringError, TFetchPriceRequest, TFetchPriceSuccess, TFetchPriceError, TString } from "../../actions/types";
-import {setEmptyStringError, setInvalidStringError, priceRequest, priceLoaded, priceError, setString,} from '../../actions'
+import { TFetchPriceRequest, TFetchPriceSuccess, TFetchPriceError, TString } from "../../actions/types";
+import { priceRequest, priceLoaded, priceError, setString,} from '../../actions'
 import { TConvertReducer } from "../../reducers/converter";
-import CurrenciesService, { ICurrenciesService } from "../../services/currencies-service";
+import { ICurrenciesService } from "../../services/currencies-service";
 
 import {ConverterView} from './ConverterView'
 import { withCurrenciesService } from "../hoc";
 
 type TDispatchProps = {
-  setEmptyStringError: () => TEmptyStringError
-  setInvalidStringError: () => TInvalidStringError
   priceRequest: () => TFetchPriceRequest
   priceLoaded: (price: number) => TFetchPriceSuccess
   priceError: (error: Error) => TFetchPriceError
-  setString: (value: string) => TString
+  setString: (string: string, inputValid: boolean) => TString
 }
 
 type TOwnProps = {
@@ -26,28 +24,21 @@ type ConverterContainerProps = TConvertReducer & TDispatchProps & TOwnProps
 
 class ConverterContainer extends Component<ConverterContainerProps> {
 
+  handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const string = e.target.value
+    this.props.setString(string, !!(this.isValid(string)))
+  }
+
   handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { string, service, setEmptyStringError, setInvalidStringError, priceRequest, priceLoaded, priceError } = this.props
+    const { string, service, priceRequest, priceLoaded, priceError } = this.props
 
-    const text = string.trim();
-
-    if (!text) {
-      setEmptyStringError();
-      return;
-    }
-
-    if (!this.isValid(text)) {
-      setInvalidStringError();
-      return;
-    }
-
-    const [quentity, fromName, , toName] = text.toUpperCase().split(" ");
+    const [quantity, fromName, , toName] = string.toUpperCase().split(" ");
 
     priceRequest();
     service
-      .getConvertPrice(fromName, toName, +quentity)
+      .getConvertPrice(fromName, toName, +quantity)
       .then((price: number) => priceLoaded(price))
       .catch((error: Error) => priceError(error));
   };
@@ -59,46 +50,37 @@ class ConverterContainer extends Component<ConverterContainerProps> {
 
   render() {
 
-    const { loading, errorMessage, price, error, string, setString} = this.props;
+    const { loading, result, inputValid, error, string} = this.props;
 
-    let result: any
+    let general: any
 
     if (loading) {
-      result = <p>Loading...</p>;
-    } else if (errorMessage) {
-      result = <p>{errorMessage}</p>;
+      general = <div>Loading...</div>;
     } else if (error) {
-      result = <p>Error</p>;
+      general = <div>Error...</div>;
     } else {
-      result = <p>{price}</p>;
+      general = <div>{result}</div>;
     }
 
     return (
       <ConverterView
       string={string}
-      result={result}
-      setString={setString}
+      general={general}
+      inputValid={inputValid}
       handleFormSubmit={this.handleFormSubmit}
+      handleInputChange={this.handleInputChange}
       />
     );
   }
 }
 
 const mapStateToProps = (
-  { convertCurrency: { loading, errorMessage, price, error, string } }:
-    { convertCurrency: TConvertReducer }): TConvertReducer => {
-  return {
-    loading,
-    errorMessage,
-    price,
-    error,
-    string,
-  };
+  { convertCurrency: { loading, result, inputValid, error, string } }:
+  { convertCurrency: TConvertReducer }): TConvertReducer => {
+  return { loading, result, error, string, inputValid};
 };
 
 const mapDispatchToProps: TDispatchProps = {
-  setEmptyStringError,
-  setInvalidStringError,
   priceRequest,
   priceLoaded,
   priceError,

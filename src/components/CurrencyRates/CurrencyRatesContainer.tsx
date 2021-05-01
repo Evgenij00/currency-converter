@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 
 import { ratesRequested, ratesLoaded, ratesError, setBaseCurrency } from "../../actions";
 import { TCurrenciesReducer } from "../../reducers/currencies-rates";
-import CurrenciesService, { ICurrenciesService } from "../../services/currencies-service";
+import { ICurrenciesService } from "../../services/currencies-service";
 import { TBaseCurrency, TFeatchRatesRequest, TFetchRatesError, TFetchRatesSuccess } from "../../actions/types";
 import { CurrencyRatesView } from "./CurrencyRatesView";
 import { withCurrenciesService } from "../hoc";
@@ -20,7 +20,6 @@ type TOwnProps = {
 }
 
 type CurrencyRatesContainerProps = TDispatchProps & TCurrenciesReducer & TOwnProps
-
 
 class CurrencyRatesContainer extends Component<CurrencyRatesContainerProps> {
 

@@ -1,4 +1,4 @@
-import { FETCH_RATES_SUCCESS, FETCH_RATES_FUILURE, FETCH_RATES_REQUEST, SET_BASE_CURRENCY, FETCH_PRICE_FUILURE, FETCH_PRICE_REQUEST, FETCH_PRICE_SUCCESS, SET_EMPTY_STRING_ERROR, SET_INVALID_STRING_ERROR, SET_STRING } from "./conts"
+import { FETCH_RATES_SUCCESS, FETCH_RATES_FUILURE, FETCH_RATES_REQUEST, FETCH_PRICE_REQUEST, FETCH_PRICE_SUCCESS, FETCH_PRICE_FUILURE, SET_STRING, SET_BASE_CURRENCY } from "./conts"
 
 export type TFetchRatesSuccess = {
   type: typeof FETCH_RATES_SUCCESS,
@@ -19,14 +19,6 @@ export type TBaseCurrency = {
   payload: string
 }
 
-export type TEmptyStringError = {
-  type: typeof SET_EMPTY_STRING_ERROR
-}
-
-export type TInvalidStringError = {
-  type: typeof SET_INVALID_STRING_ERROR
-}
-
 export type TFetchPriceRequest = {
   type: typeof FETCH_PRICE_REQUEST
 }
@@ -43,6 +35,5 @@ export type TFetchPriceError = {
 
 export type TString = {
   type: typeof SET_STRING
-  payload: string
+  payload: {string: string, inputValid: boolean}
 }
-

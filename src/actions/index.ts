@@ -1,18 +1,12 @@
-import { FETCH_RATES_SUCCESS, FETCH_RATES_FUILURE, FETCH_RATES_REQUEST, SET_BASE_CURRENCY, FETCH_PRICE_FUILURE, FETCH_PRICE_REQUEST, FETCH_PRICE_SUCCESS, SET_EMPTY_STRING_ERROR, SET_INVALID_STRING_ERROR, SET_STRING } from "./conts"
-import { TFetchRatesSuccess, TFetchRatesError, TFeatchRatesRequest, TBaseCurrency,
-  TEmptyStringError,
-  TInvalidStringError,
-  TFetchPriceRequest,
-  TFetchPriceSuccess,
-  TFetchPriceError,
-  TString } from "./types"
+import { FETCH_RATES_SUCCESS, FETCH_RATES_FUILURE, FETCH_RATES_REQUEST, FETCH_PRICE_REQUEST, FETCH_PRICE_SUCCESS, FETCH_PRICE_FUILURE, SET_STRING, SET_BASE_CURRENCY } from "./conts"
+import { TFetchRatesSuccess, TFetchRatesError, TFeatchRatesRequest, TFetchPriceRequest, TFetchPriceSuccess, TFetchPriceError, TString, TBaseCurrency } from "./types"
 
 const ratesRequested = (): TFeatchRatesRequest => ({ type: FETCH_RATES_REQUEST })
 
-const ratesLoaded = (newRates: [string, number][]): TFetchRatesSuccess => {
+const ratesLoaded = (rates: [string, number][]): TFetchRatesSuccess => {
   return {
     type: FETCH_RATES_SUCCESS,
-    payload: newRates,
+    payload: rates,
   }
 }
 
@@ -28,20 +22,34 @@ const setBaseCurrency = (baseCurrency: string): TBaseCurrency => {
   }
 }
 
-const setEmptyStringError = (): TEmptyStringError => ({ type: SET_EMPTY_STRING_ERROR })
-const setInvalidStringError = (): TInvalidStringError => ({ type: SET_INVALID_STRING_ERROR })
+const setString = (string: string, inputValid: boolean): TString => {
+  return { 
+    type: SET_STRING, 
+    payload: {string, inputValid} 
+  }
+}
+
+const priceLoaded = (price: number): TFetchPriceSuccess => {
+  return { 
+    type: FETCH_PRICE_SUCCESS,
+    payload: price 
+  }
+}
+const priceError = (error: Error): TFetchPriceError => {
+  return { 
+    type: FETCH_PRICE_FUILURE, 
+    payload: error 
+  }
+}
+
 const priceRequest = (): TFetchPriceRequest => ({ type: FETCH_PRICE_REQUEST })
-const priceLoaded = (price: number): TFetchPriceSuccess => ({ type: FETCH_PRICE_SUCCESS, payload: price })
-const priceError = (error: Error): TFetchPriceError => ({ type: FETCH_PRICE_FUILURE, payload: error })
-const setString = (value: string): TString => ({ type: SET_STRING, payload: value })
+
 
 export {
   ratesRequested,
   ratesLoaded,
   ratesError,
   setBaseCurrency,
-  setEmptyStringError,
-  setInvalidStringError,
   priceRequest,
   priceLoaded,
   priceError,

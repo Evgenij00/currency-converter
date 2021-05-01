@@ -1,16 +1,16 @@
 import React from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import { TString } from "../../actions/types";
 
 type ConverterProps = {
   string: string
-  result: string
-  setString: (value: string) => TString
+  general: string
+  inputValid: boolean
   handleFormSubmit: (e: React.FormEvent<HTMLFormElement>) => void
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-export const ConverterView: React.FC<ConverterProps> = ({ string, result, setString, handleFormSubmit}) => {
+export const ConverterView: React.FC<ConverterProps> = ({ string, general, inputValid, handleFormSubmit, handleInputChange}) => {
   return (
     <Form onSubmit={handleFormSubmit}>
       <Form.Group controlId="formBasicEmail">
@@ -18,7 +18,7 @@ export const ConverterView: React.FC<ConverterProps> = ({ string, result, setStr
         <Form.Control
           type="text"
           value={string}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setString(e.target.value)}
+          onChange={handleInputChange}
           placeholder="10 usd in rub"
         />
         <Form.Text className="text-muted">
@@ -26,10 +26,10 @@ export const ConverterView: React.FC<ConverterProps> = ({ string, result, setStr
           Пример: 10 usd in rub
         </Form.Text>
       </Form.Group>
-      <Button variant="primary" type="submit">
+      <Button variant="primary" type="submit" disabled={!inputValid}>
         Конвертировать
       </Button>
-      {result}
+      {general}
     </Form>
   );
 };
