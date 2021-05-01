@@ -1,3 +1,3 @@
-import CurrencyRatesTable from './CurrencyRates'
+import CurrencyRates from './CurrencyRatesContainer'
 
-export default CurrencyRatesTable
+export default CurrencyRates

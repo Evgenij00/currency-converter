@@ -1,16 +1,12 @@
 import React, { Component } from "react";
 
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
 import { connect } from 'react-redux';
 import { TEmptyStringError, TInvalidStringError, TFetchPriceRequest, TFetchPriceSuccess, TFetchPriceError, TString } from "../../actions/types";
 import {setEmptyStringError, setInvalidStringError, priceRequest, priceLoaded, priceError, setString,} from '../../actions'
 import { TConvertReducer } from "../../reducers/converter";
 import CurrenciesService, { ICurrenciesService } from "../../services/currencies-service";
 
-type TOwnProps = {
-  service: ICurrenciesService
-}
+import {ConverterView} from './ConverterView'
 
 type TDispatchProps = {
   setEmptyStringError: () => TEmptyStringError
@@ -21,9 +17,9 @@ type TDispatchProps = {
   setString: (value: string) => TString
 }
 
-type ConverterProps = TConvertReducer & TDispatchProps & TOwnProps
+type ConverterContainerProps = TConvertReducer & TDispatchProps
 
-class Converter extends Component<ConverterProps> {
+class ConverterContainer extends Component<ConverterContainerProps> {
 
   service: ICurrenciesService = new CurrenciesService()
 
@@ -60,14 +56,7 @@ class Converter extends Component<ConverterProps> {
 
   render() {
 
-    const {
-      loading,
-      errorMessage,
-      price,
-      error,
-      string,
-      setString,
-    } = this.props;
+    const { loading, errorMessage, price, error, string, setString} = this.props;
 
     let result: any
 
@@ -82,25 +71,12 @@ class Converter extends Component<ConverterProps> {
     }
 
     return (
-      <Form onSubmit={this.handleFormSubmit}>
-      <Form.Group controlId="formBasicEmail">
-        <Form.Label>Что вы хотите конвертировать?</Form.Label>
-        <Form.Control
-          type="text"
-          value={string}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setString(e.target.value)}
-          placeholder="10 usd in rub"
-        />
-        <Form.Text className="text-muted">
-          Убедитесь, что вы правильно ввели данные. Регистр не имеет значения.
-          Пример: 10 usd in rub
-        </Form.Text>
-      </Form.Group>
-      <Button variant="primary" type="submit">
-        Конвертировать
-      </Button>
-      {result}
-    </Form>
+      <ConverterView
+      string={string}
+      result={result}
+      setString={setString}
+      handleFormSubmit={this.handleFormSubmit}
+      />
     );
   }
 }
@@ -126,4 +102,4 @@ const mapDispatchToProps: TDispatchProps = {
   setString,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Converter)
+export default connect(mapStateToProps, mapDispatchToProps)(ConverterContainer)

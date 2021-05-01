@@ -1,48 +1,47 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux'
 
-import Form from "react-bootstrap/Form";
-import Table from "react-bootstrap/Table";
 import { ratesRequested, ratesLoaded, ratesError, setBaseCurrency } from "../../actions";
 import { TCurrenciesReducer } from "../../reducers/currencies-rates";
 import CurrenciesService from "../../services/currencies-service";
 import { TBaseCurrency, TFeatchRatesRequest, TFetchRatesError, TFetchRatesSuccess } from "../../actions/types";
+import { CurrencyRatesView } from "./CurrencyRatesView";
 
-type CurrencyRatesProps = {
-  baseCurrency: string
-  currenciesRates: [string, number][] | []
-  error: Error | null
-  loading: boolean
+type TDispatchProps = {
   ratesRequested: () => TFeatchRatesRequest
   ratesLoaded: (rates: [string, number][]) => TFetchRatesSuccess
   ratesError: (error: Error) => TFetchRatesError
   setBaseCurrency: (baseCurrency: string) => TBaseCurrency
 }
 
-class CurrencyRates extends Component<CurrencyRatesProps> {
+type CurrencyRatesContainerProps = TDispatchProps & TCurrenciesReducer
+
+
+class CurrencyRatesContainer extends Component<CurrencyRatesContainerProps> {
 
   service = new CurrenciesService()
 
   private _idInterval: any
+  private _interval: number = 5000
 
   componentDidMount(): void {
-    ratesRequested()
+    this.props.ratesRequested()
     this.fetchRates(this.props.baseCurrency);
     this._idInterval = setInterval(
       () => this.fetchRates(this.props.baseCurrency),
-      5000
+      this._interval
     );
-  }
-
-  fetchRates = (baseCurrency: string) => {
-    const {ratesRequested, ratesLoaded, ratesError} = this.props
-    this.service.getRatesByBase(baseCurrency)
-      .then((rates: [string, number][]) => ratesLoaded(rates))
-      .catch((error: Error) => ratesError(error))
   }
 
   componentWillUnmount(): void {
     clearInterval(this._idInterval);
+  }
+  
+  fetchRates = (baseCurrency: string) => {
+    const {ratesLoaded, ratesError} = this.props
+    this.service.getRatesByBase(baseCurrency)
+      .then((rates: [string, number][]) => ratesLoaded(rates))
+      .catch((error: Error) => ratesError(error))
   }
 
   hendleChangeSelector = (e: React.ChangeEvent<HTMLSelectElement>): void => {
@@ -69,45 +68,24 @@ class CurrencyRates extends Component<CurrencyRatesProps> {
   };
 
   render() {
-    // console.log(this.props)
-
     const { baseCurrency, loading, error, currenciesRates } = this.props;
 
     if (loading) return <h1>Loading...</h1>;
-
     if (error) return <h1>Error</h1>;
 
     const currenciesNames = this.service.getCurrenciesNames().map(this.renderSelect)
     const items = currenciesRates.map(this.renderTabels)
 
     return (
-      <>
-        <Form>
-          <Form.Group controlId="exampleForm.SelectCustom">
-            <Form.Label>Выберите валюту</Form.Label>
-            <Form.Control as="select"
-              value={baseCurrency}
-              onChange={this.hendleChangeSelector}
-              custom>
-              {currenciesNames}
-            </Form.Control>
-          </Form.Group>
-        </Form>
-        <Table striped bordered hover size="sm">
-          <thead>
-            <tr>
-              <th>Основные пары</th>
-              <th>Покупка</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items}
-          </tbody>
-        </Table>
-      </>
+      <CurrencyRatesView
+        currenciesNames={currenciesNames}
+        items={items}
+        baseCurrency={baseCurrency}
+        hendleChangeSelector={this.hendleChangeSelector} />
     );
   }
 }
+
 
 const mapStateToProps = (
   { updateCurrenciesRates: { baseCurrency, currenciesRates, error, loading } }:
@@ -116,19 +94,12 @@ const mapStateToProps = (
   return { baseCurrency, currenciesRates, error, loading };
 };
 
-type TmapDispatchToProps = {
-  ratesRequested: () => TFeatchRatesRequest
-  ratesLoaded: (rates: [string, number][]) => TFetchRatesSuccess
-  ratesError: (error: Error) => TFetchRatesError
-  setBaseCurrency: (baseCurrency: string) => TBaseCurrency
-}
-
-const mapDispatchToProps: TmapDispatchToProps = {
+const mapDispatchToProps: TDispatchProps = {
   ratesLoaded,
   setBaseCurrency,
   ratesError,
   ratesRequested
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CurrencyRates)
+export default connect(mapStateToProps, mapDispatchToProps)(CurrencyRatesContainer)
 
