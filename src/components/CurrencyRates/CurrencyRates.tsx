@@ -26,6 +26,7 @@ class CurrencyRates extends Component<CurrencyRatesProps> {
   private _idInterval: any
 
   componentDidMount(): void {
+    ratesRequested()
     this.fetchRates(this.props.baseCurrency);
     this._idInterval = setInterval(
       () => this.fetchRates(this.props.baseCurrency),
@@ -35,7 +36,6 @@ class CurrencyRates extends Component<CurrencyRatesProps> {
 
   fetchRates = (baseCurrency: string) => {
     const {ratesRequested, ratesLoaded, ratesError} = this.props
-    ratesRequested()
     this.service.getRatesByBase(baseCurrency)
       .then((rates: [string, number][]) => ratesLoaded(rates))
       .catch((error: Error) => ratesError(error))
