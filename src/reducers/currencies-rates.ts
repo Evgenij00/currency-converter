@@ -11,6 +11,7 @@ const updateCurrenciesRates = (state: any, action: any): TCurrenciesReducer => {
 
   if (state === undefined) {
     return {
+      ...state,
       baseCurrency: 'USD',
       currenciesRates: [],
       error: null,

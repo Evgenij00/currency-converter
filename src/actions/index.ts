@@ -1,7 +1,11 @@
-// import { ICurrenciesService } from "../services/currencies-service"
-import CurrenciesService from "../services/currencies-service"
-import { FETCH_RATES_SUCCESS, FETCH_RATES_FUILURE, FETCH_RATES_REQUEST, SET_BASE_CURRENCY } from "./conts"
-import { TFetchRatesSuccess, TFetchRatesError, TFeatchRatesRequest, TBaseCurrency } from "./types"
+import { FETCH_RATES_SUCCESS, FETCH_RATES_FUILURE, FETCH_RATES_REQUEST, SET_BASE_CURRENCY, FETCH_PRICE_FUILURE, FETCH_PRICE_REQUEST, FETCH_PRICE_SUCCESS, SET_EMPTY_STRING_ERROR, SET_INVALID_STRING_ERROR, SET_STRING } from "./conts"
+import { TFetchRatesSuccess, TFetchRatesError, TFeatchRatesRequest, TBaseCurrency,
+  TEmptyStringError,
+  TInvalidStringError,
+  TFetchPriceRequest,
+  TFetchPriceSuccess,
+  TFetchPriceError,
+  TString } from "./types"
 
 const ratesRequested = (): TFeatchRatesRequest => ({ type: FETCH_RATES_REQUEST })
 
@@ -24,18 +28,22 @@ const setBaseCurrency = (baseCurrency: string): TBaseCurrency => {
   }
 }
 
-const fetchRates = (dispatch: any) => (baseCurrency: string): void => {
-  const service = new CurrenciesService()
-  dispatch(ratesRequested())
-  service.getRatesByBase(baseCurrency)
-    .then((rates: [string, number][]) => dispatch(ratesLoaded(rates)))
-    .catch((error: Error) => dispatch(ratesError(error)))
-}
+const setEmptyStringError = (): TEmptyStringError => ({ type: SET_EMPTY_STRING_ERROR })
+const setInvalidStringError = (): TInvalidStringError => ({ type: SET_INVALID_STRING_ERROR })
+const priceRequest = (): TFetchPriceRequest => ({ type: FETCH_PRICE_REQUEST })
+const priceLoaded = (price: number): TFetchPriceSuccess => ({ type: FETCH_PRICE_SUCCESS, payload: price })
+const priceError = (error: Error): TFetchPriceError => ({ type: FETCH_PRICE_FUILURE, payload: error })
+const setString = (value: string): TString => ({ type: SET_STRING, payload: value })
 
 export {
   ratesRequested,
   ratesLoaded,
   ratesError,
-  fetchRates,
   setBaseCurrency,
+  setEmptyStringError,
+  setInvalidStringError,
+  priceRequest,
+  priceLoaded,
+  priceError,
+  setString,
 }
