@@ -7,10 +7,11 @@ type TRates = {
 export interface ICurrenciesService {
   getCurrenciesNames: () => string[]
   getResource: (url: string) => Promise<any>
-  getRates: () => Promise<TRates>
-  getRatesByBase: (newBase: string) => Promise<any>
-  getRatesByBaseRandom: (newBase: string) => Promise<any>
-  getConvertPrice: (fromName: string, toName: string, quantity: number) => Promise<any>
+  getInitialRates: () => Promise<TRates>
+  getRatesByBase: (newBase: string) => Promise<[string, number][]>
+  getRatesByBaseRandom: (newBase: string) => Promise<[string, number][]>
+  getConvertPrice: (fromName: string, toName: string, quantity: number) => Promise<number>
+  loadCurrenciesName: () => Promise<void>
 }
 
 export default class CurrenciesService implements ICurrenciesService {
@@ -52,11 +53,16 @@ export default class CurrenciesService implements ICurrenciesService {
     'JPY',
   ]
 
-  getCurrenciesNames = () => {
+  getCurrenciesNames = (): string[] => {
     return this._currenciesNames
   }
 
-  getResource = async (url: string) => {
+  loadCurrenciesName = async () => {
+    const currenciesNames = await this.getInitialRates()
+    this._currenciesNames = Object.keys(currenciesNames)
+  }
+
+  getResource = async (url: string): Promise<any> => {
     const res = await axios.get(url)
 
     if (res.status !== 200) {
@@ -67,23 +73,20 @@ export default class CurrenciesService implements ICurrenciesService {
     return await res.data
   }
 
-  getRates = async (): Promise<TRates> => {
+  getInitialRates = async (): Promise<TRates> => {
     const data = await this.getResource('https://www.cbr-xml-daily.ru/latest.js')
     return data.rates
   }
 
-  //получить курсы валют относительно базаовой
-  getRatesByBase = async (newBase: string) => {
-    //курсы относительно рубля
-    const rates = await this.getRates()
+  getRatesByBase = async (newBase: string): Promise<[string, number][]> => {
+    const rates = await this.getInitialRates()
 
-    //достаем текущую цену нужной валюты относительно рубля
+    //Курс новой базовой валюты относительно рубля
     const newBasePrice = rates[newBase]
 
-    //преобразуем объект в массив
     const ratesArray = Object.entries(rates)
 
-    //обновляем курсы всех валют относительно новой базовой: newBasePrice
+    //Необходимо обновить массив валют относительно новой базовой
     const updateRatesArray = ratesArray.map((item) => {
       item[1] /= newBasePrice
       return item
@@ -92,35 +95,32 @@ export default class CurrenciesService implements ICurrenciesService {
     return updateRatesArray
   }
 
-  getRatesByBaseRandom = async (newBase: string): Promise<any> => {
+  getRatesByBaseRandom = async (newBase: string): Promise<[string, number][]> => {
     const updateRatesArray = await this.getRatesByBase(newBase)
     return this._simulateUpdateCurrenciesRates(updateRatesArray)
   }
 
-  getConvertPrice = async (fromName: string, toName: string, quantity: number) => {
-    //получаем обновленные курсы валют
+  getConvertPrice = async (fromName: string, toName: string, quantity: number): Promise<number> => {
     const updateRatesArray = await this.getRatesByBase(fromName)
-
     const newRates: TRates = {}
 
-    //обратно в объект
     for (let [name, price] of updateRatesArray) {
       newRates[name] = price
     }
 
-    return newRates[toName] * quantity
+    return Number((newRates[toName] * quantity).toFixed(5))
   }
 
-  _simulateUpdateCurrenciesRates = (rates: [string, number][]): [string, number][] => {
+  private _simulateUpdateCurrenciesRates = (rates: [string, number][]): [string, number][] => {
     return rates.map((item: [string, number]) => {
-      const diff = this._getRandomPrice(item[1])
+      const diff = this._getRandomDifference(item[1])
       item[0] = item[0] + '/' + diff
       item[1] = +(item[1] + diff).toFixed(5)
       return item
     })
   }
 
-  _getRandomPrice = (price: number): number => {
+  private _getRandomDifference = (price: number): number => {
     return (-0.001 + Math.random() * (0.001 + 0.001)) * price
   }
 }

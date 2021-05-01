@@ -1,4 +1,3 @@
-// import React from 'react'
 import { CurrenciesServiceConsumer } from '../currencies-service-context'
 
 const withCurrenciesService = () => (Wrapped: any) => {

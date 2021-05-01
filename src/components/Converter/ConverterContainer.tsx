@@ -55,11 +55,11 @@ class ConverterContainer extends Component<ConverterContainerProps> {
     let general: any
 
     if (loading) {
-      general = <div>Loading...</div>;
+      general = <span>Выполняем работу :)</span>;
     } else if (error) {
-      general = <div>Error...</div>;
+      general = <span>Что-то пошло не так... Попробуйте в другой раз.</span>;
     } else {
-      general = <div>{result}</div>;
+      general = <span>{result}</span>;
     }
 
     return (

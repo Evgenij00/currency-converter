@@ -33,7 +33,7 @@ const convertCurrency = (state: any, action: any): TConvertReducer => {
       if (!action.payload) {
         return {
           ...state,
-          result: 'В данный момент у нас нет данных об интересующих вас валютах.',
+          result: 'Извините, сейчас у нас нет данных об интересующих вас валютах.',
           loading: false,
           error: null,
         };

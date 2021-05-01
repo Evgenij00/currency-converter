@@ -2,6 +2,8 @@ import React from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 
+import './Converter.css'
+
 type ConverterProps = {
   string: string
   general: string
@@ -22,11 +24,11 @@ export const ConverterView: React.FC<ConverterProps> = ({ string, general, input
           placeholder="10 usd in rub"
         />
         <Form.Text className="text-muted">
-          Убедитесь, что вы правильно ввели данные. Регистр не имеет значения.
+          Убедитесь, что вы правильно ввели данные (должны быть в формате ISO). Регистр не имеет значения.
           Пример: 10 usd in rub
         </Form.Text>
       </Form.Group>
-      <Button variant="primary" type="submit" disabled={!inputValid}>
+      <Button variant="primary" type="submit" className="btn" disabled={!inputValid}>
         Конвертировать
       </Button>
       {general}

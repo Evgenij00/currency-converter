@@ -28,6 +28,7 @@ class CurrencyRatesContainer extends Component<CurrencyRatesContainerProps> {
 
   componentDidMount(): void {
     this.props.ratesRequested()
+    this.props.service.loadCurrenciesName()
     this.startTimer()
   }
 
@@ -53,7 +54,7 @@ class CurrencyRatesContainer extends Component<CurrencyRatesContainerProps> {
   hendleChangeSelector = (e: React.ChangeEvent<HTMLSelectElement>): void => {
     localStorage.setItem('baseCurrency', e.target.value)
     this.props.setBaseCurrency(e.target.value)
-    this.props.ratesRequested()
+
     clearInterval(this._idInterval);
     this.startTimer()
   };
@@ -71,16 +72,27 @@ class CurrencyRatesContainer extends Component<CurrencyRatesContainerProps> {
     const [currency, diff] = item[0].split('/')
 
     let colorClassName = undefined
+    let icon = undefined
 
-    if (diff > 0) colorClassName = 'green'
-    if (diff < 0) colorClassName = 'red'
+    if (diff > 0) {
+      colorClassName = 'green'
+      icon = <i className="fas fa-arrow-up"></i>
+    }
+      
+    if (diff < 0) {
+      colorClassName = 'red'
+      icon = <i className="fas fa-arrow-down"></i>
+    }
 
     return (
       <tr key={item[0]}>
         <td>
           {this.props.baseCurrency}/{currency}
         </td>
-        <td className={colorClassName}>{item[1]}</td>
+        <td className={colorClassName}>
+          <span className="icon">{icon}</span>
+          <span>{item[1]}</span>
+          </td>
       </tr>
     );
   };
@@ -88,8 +100,8 @@ class CurrencyRatesContainer extends Component<CurrencyRatesContainerProps> {
   render() {
     const {service, baseCurrency, loading, error, currenciesRates } = this.props;
 
-    if (loading) return <h1>Loading...</h1>;
-    if (error) return <h1>Error</h1>;
+    if (loading) return <h1>Выполняем работу :)</h1>;
+    if (error) return <h1>Что-то пошло не так... Попробуйте в другой раз.</h1>;
 
     const currenciesNames = service.getCurrenciesNames().map(this.renderSelect)
     const items = currenciesRates.map(this.renderTabels)
