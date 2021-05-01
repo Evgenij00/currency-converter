@@ -12,7 +12,7 @@ const updateCurrenciesRates = (state: any, action: any): TCurrenciesReducer => {
   if (state === undefined) {
     return {
       ...state,
-      baseCurrency: 'USD',
+      baseCurrency: localStorage.getItem('baseCurrency') || 'USD',
       currenciesRates: [],
       error: null,
       loading: true,

@@ -47,7 +47,9 @@ class CurrencyRatesContainer extends Component<CurrencyRatesContainerProps> {
   }
 
   hendleChangeSelector = (e: React.ChangeEvent<HTMLSelectElement>): void => {
-    this.props.setBaseCurrency(e.target.value)
+    const value = e.target.value
+    localStorage.setItem('baseCurrency', value)
+    this.props.setBaseCurrency(value)
   };
 
   renderSelect = (name: string): any => {
@@ -106,4 +108,3 @@ const mapDispatchToProps: TDispatchProps = {
 export default withCurrenciesService()(
   connect(mapStateToProps, mapDispatchToProps)(CurrencyRatesContainer)
 )
-
