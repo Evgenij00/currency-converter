@@ -9,6 +9,7 @@ export interface ICurrenciesService {
   getResource: (url: string) => Promise<any>
   getRates: () => Promise<TRates>
   getRatesByBase: (newBase: string) => Promise<any>
+  getRatesByBaseRandom: (newBase: string) => Promise<any>
   getConvertPrice: (fromName: string, toName: string, quantity: number) => Promise<any>
 }
 
@@ -58,8 +59,6 @@ export default class CurrenciesService implements ICurrenciesService {
   getResource = async (url: string) => {
     const res = await axios.get(url)
 
-    // console.log(res)
-
     if (res.status !== 200) {
       throw new Error(
         `Could not fetch ${url}, received ${res.status}`
@@ -70,9 +69,6 @@ export default class CurrenciesService implements ICurrenciesService {
 
   getRates = async (): Promise<TRates> => {
     const data = await this.getResource('https://www.cbr-xml-daily.ru/latest.js')
-
-    // console.log(data.rates)
-
     return data.rates
   }
 
@@ -93,9 +89,12 @@ export default class CurrenciesService implements ICurrenciesService {
       return item
     })
 
-    // console.log(updateRatesArray)
-
     return updateRatesArray
+  }
+
+  getRatesByBaseRandom = async (newBase: string): Promise<any> => {
+    const updateRatesArray = await this.getRatesByBase(newBase)
+    return this._simulateUpdateCurrenciesRates(updateRatesArray)
   }
 
   getConvertPrice = async (fromName: string, toName: string, quantity: number) => {
@@ -109,8 +108,19 @@ export default class CurrenciesService implements ICurrenciesService {
       newRates[name] = price
     }
 
-    // console.log(newRates[toName] * quantity)
-
     return newRates[toName] * quantity
+  }
+
+  _simulateUpdateCurrenciesRates = (rates: [string, number][]): [string, number][] => {
+    return rates.map((item: [string, number]) => {
+      const diff = this._getRandomPrice(item[1])
+      item[0] = item[0] + '/' + diff
+      item[1] = +(item[1] + diff).toFixed(5)
+      return item
+    })
+  }
+
+  _getRandomPrice = (price: number): number => {
+    return (-0.001 + Math.random() * (0.001 + 0.001)) * price
   }
 }

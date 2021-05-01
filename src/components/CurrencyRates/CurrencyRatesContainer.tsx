@@ -28,28 +28,34 @@ class CurrencyRatesContainer extends Component<CurrencyRatesContainerProps> {
 
   componentDidMount(): void {
     this.props.ratesRequested()
+    this.startTimer()
+  }
+
+  componentWillUnmount(): void {
+    clearInterval(this._idInterval);
+  }
+
+  startTimer = () => {
     this.fetchRates(this.props.baseCurrency);
     this._idInterval = setInterval(
       () => this.fetchRates(this.props.baseCurrency),
       this._interval
     );
   }
-
-  componentWillUnmount(): void {
-    clearInterval(this._idInterval);
-  }
   
   fetchRates = (baseCurrency: string) => {
     const {service, ratesLoaded, ratesError} = this.props
-    service.getRatesByBase(baseCurrency)
+    service.getRatesByBaseRandom(baseCurrency)
       .then((rates: [string, number][]) => ratesLoaded(rates))
       .catch((error: Error) => ratesError(error))
   }
 
   hendleChangeSelector = (e: React.ChangeEvent<HTMLSelectElement>): void => {
-    const value = e.target.value
-    localStorage.setItem('baseCurrency', value)
-    this.props.setBaseCurrency(value)
+    localStorage.setItem('baseCurrency', e.target.value)
+    this.props.setBaseCurrency(e.target.value)
+    this.props.ratesRequested()
+    clearInterval(this._idInterval);
+    this.startTimer()
   };
 
   renderSelect = (name: string): any => {
@@ -61,12 +67,20 @@ class CurrencyRatesContainer extends Component<CurrencyRatesContainerProps> {
   };
 
   renderTabels = (item: any): any => {
+
+    const [currency, diff] = item[0].split('/')
+
+    let colorClassName = undefined
+
+    if (diff > 0) colorClassName = 'green'
+    if (diff < 0) colorClassName = 'red'
+
     return (
       <tr key={item[0]}>
         <td>
-          {this.props.baseCurrency}/{item[0]}
+          {this.props.baseCurrency}/{currency}
         </td>
-        <td>{item[1]}</td>
+        <td className={colorClassName}>{item[1]}</td>
       </tr>
     );
   };

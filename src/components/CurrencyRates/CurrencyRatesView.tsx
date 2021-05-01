@@ -1,6 +1,8 @@
 import Form from "react-bootstrap/Form";
 import Table from "react-bootstrap/Table";
 
+import './CurrencyRates.css'
+
 type CurrencyRatesViewProps = {
   currenciesNames: any
   items: any
