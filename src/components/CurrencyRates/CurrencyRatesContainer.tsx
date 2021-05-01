@@ -3,9 +3,10 @@ import { connect } from 'react-redux'
 
 import { ratesRequested, ratesLoaded, ratesError, setBaseCurrency } from "../../actions";
 import { TCurrenciesReducer } from "../../reducers/currencies-rates";
-import CurrenciesService from "../../services/currencies-service";
+import CurrenciesService, { ICurrenciesService } from "../../services/currencies-service";
 import { TBaseCurrency, TFeatchRatesRequest, TFetchRatesError, TFetchRatesSuccess } from "../../actions/types";
 import { CurrencyRatesView } from "./CurrencyRatesView";
+import { withCurrenciesService } from "../hoc";
 
 type TDispatchProps = {
   ratesRequested: () => TFeatchRatesRequest
@@ -14,12 +15,14 @@ type TDispatchProps = {
   setBaseCurrency: (baseCurrency: string) => TBaseCurrency
 }
 
-type CurrencyRatesContainerProps = TDispatchProps & TCurrenciesReducer
+type TOwnProps = {
+  service: ICurrenciesService
+}
+
+type CurrencyRatesContainerProps = TDispatchProps & TCurrenciesReducer & TOwnProps
 
 
 class CurrencyRatesContainer extends Component<CurrencyRatesContainerProps> {
-
-  service = new CurrenciesService()
 
   private _idInterval: any
   private _interval: number = 5000
@@ -38,8 +41,8 @@ class CurrencyRatesContainer extends Component<CurrencyRatesContainerProps> {
   }
   
   fetchRates = (baseCurrency: string) => {
-    const {ratesLoaded, ratesError} = this.props
-    this.service.getRatesByBase(baseCurrency)
+    const {service, ratesLoaded, ratesError} = this.props
+    service.getRatesByBase(baseCurrency)
       .then((rates: [string, number][]) => ratesLoaded(rates))
       .catch((error: Error) => ratesError(error))
   }
@@ -68,12 +71,12 @@ class CurrencyRatesContainer extends Component<CurrencyRatesContainerProps> {
   };
 
   render() {
-    const { baseCurrency, loading, error, currenciesRates } = this.props;
+    const {service, baseCurrency, loading, error, currenciesRates } = this.props;
 
     if (loading) return <h1>Loading...</h1>;
     if (error) return <h1>Error</h1>;
 
-    const currenciesNames = this.service.getCurrenciesNames().map(this.renderSelect)
+    const currenciesNames = service.getCurrenciesNames().map(this.renderSelect)
     const items = currenciesRates.map(this.renderTabels)
 
     return (
@@ -101,5 +104,7 @@ const mapDispatchToProps: TDispatchProps = {
   ratesRequested
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CurrencyRatesContainer)
+export default withCurrenciesService()(
+  connect(mapStateToProps, mapDispatchToProps)(CurrencyRatesContainer)
+)
 

@@ -7,6 +7,7 @@ import { TConvertReducer } from "../../reducers/converter";
 import CurrenciesService, { ICurrenciesService } from "../../services/currencies-service";
 
 import {ConverterView} from './ConverterView'
+import { withCurrenciesService } from "../hoc";
 
 type TDispatchProps = {
   setEmptyStringError: () => TEmptyStringError
@@ -17,16 +18,18 @@ type TDispatchProps = {
   setString: (value: string) => TString
 }
 
-type ConverterContainerProps = TConvertReducer & TDispatchProps
+type TOwnProps = {
+  service: ICurrenciesService
+}
+
+type ConverterContainerProps = TConvertReducer & TDispatchProps & TOwnProps
 
 class ConverterContainer extends Component<ConverterContainerProps> {
-
-  service: ICurrenciesService = new CurrenciesService()
 
   handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { string, setEmptyStringError, setInvalidStringError, priceRequest, priceLoaded, priceError } = this.props
+    const { string, service, setEmptyStringError, setInvalidStringError, priceRequest, priceLoaded, priceError } = this.props
 
     const text = string.trim();
 
@@ -43,7 +46,7 @@ class ConverterContainer extends Component<ConverterContainerProps> {
     const [quentity, fromName, , toName] = text.toUpperCase().split(" ");
 
     priceRequest();
-    this.service
+    service
       .getConvertPrice(fromName, toName, +quentity)
       .then((price: number) => priceLoaded(price))
       .catch((error: Error) => priceError(error));
@@ -102,4 +105,6 @@ const mapDispatchToProps: TDispatchProps = {
   setString,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ConverterContainer)
+export default withCurrenciesService()(
+  connect(mapStateToProps, mapDispatchToProps)(ConverterContainer)
+)
